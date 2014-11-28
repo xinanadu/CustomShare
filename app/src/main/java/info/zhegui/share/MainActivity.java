@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -54,14 +55,17 @@ public class MainActivity extends ActionBarActivity {
             public void onClick(View v) {
                 btnShare.setEnabled(false);
 
-//                new Thread(){
-//                    public void run(){
 
                 listApp = showAllShareApp();
-                if (listApp != null)
+                if (listApp != null) {
                     listView.setAdapter(new MyAdapter());
-//                    }
-//                }.start();
+                    listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            share(listApp.get(position));
+                        }
+                    });
+                }
             }
         });
     }
@@ -77,7 +81,8 @@ public class MainActivity extends ActionBarActivity {
                             appInfo.activityInfo.name));
         }
         sendIntent.setType("text/plain");
-        startActivity(Intent.createChooser(sendIntent, "Share"));
+//        startActivity(Intent.createChooser(sendIntent, "Share"));
+        startActivity(sendIntent);
     }
 
     private java.util.List<ResolveInfo> showAllShareApp() {
@@ -131,6 +136,7 @@ public class MainActivity extends ActionBarActivity {
             holder.ivLogo.setImageDrawable(appInfo.loadIcon(pm));
             holder.tvAppName.setText(appInfo.loadLabel(pm));
             holder.tvPackageName.setText(appInfo.activityInfo.packageName);
+
             return convertView;
         }
     }
