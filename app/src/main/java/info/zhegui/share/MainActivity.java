@@ -28,12 +28,12 @@ public class MainActivity extends ActionBarActivity {
     private Button btnShare;
     private java.util.List<ResolveInfo> listApp;
 
-    private final int WHAT_SHOW_SHARE_APP=101;
+    private final int WHAT_SHOW_SHARE_APP = 101;
 
-    private Handler mHandler=new Handler(){
+    private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            switch (msg.what){
+            switch (msg.what) {
                 case WHAT_SHOW_SHARE_APP:
                     listView.setAdapter(new MyAdapter());
                     break;
@@ -46,8 +46,8 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        listView=(ListView)findViewById(R.id.listView);
-        btnShare=(Button)findViewById(R.id.btn_share);
+        listView = (ListView) findViewById(R.id.listView);
+        btnShare = (Button) findViewById(R.id.btn_share);
 
         btnShare.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -57,8 +57,9 @@ public class MainActivity extends ActionBarActivity {
 //                new Thread(){
 //                    public void run(){
 
-//                        listApp= showAllShareApp();
-//                listView.setAdapter(new MyAdapter());
+                listApp = showAllShareApp();
+                if (listApp != null)
+                    listView.setAdapter(new MyAdapter());
 //                    }
 //                }.start();
             }
@@ -90,7 +91,13 @@ public class MainActivity extends ActionBarActivity {
         return mApps;
     }
 
-    class MyAdapter extends BaseAdapter{
+    class MyAdapter extends BaseAdapter {
+
+        PackageManager pm;
+        public MyAdapter(){
+            pm=getPackageManager();
+        }
+
 
         @Override
         public int getCount() {
@@ -109,24 +116,26 @@ public class MainActivity extends ActionBarActivity {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            ViewHolder holder=null;
-            if(convertView==null){
-                holder=new ViewHolder();
-                convertView= LayoutInflater.from(MainActivity.this).inflate(R.layout.layout_share_app, parent, false);
-                holder.ivLogo= (ImageView) convertView.findViewById(R.id.iv_logo);
-                holder.tvAppName= (TextView) convertView.findViewById(R.id.tv_app_name);
-                holder.tvPackageName= (TextView) convertView.findViewById(R.id.tv_app_package_name);
-            }else{
-                holder= (ViewHolder) convertView.getTag();
+            ViewHolder holder = null;
+            if (convertView == null) {
+                holder = new ViewHolder();
+                convertView = LayoutInflater.from(MainActivity.this).inflate(R.layout.layout_share_app, parent, false);
+                holder.ivLogo = (ImageView) convertView.findViewById(R.id.iv_logo);
+                holder.tvAppName = (TextView) convertView.findViewById(R.id.tv_app_name);
+                holder.tvPackageName = (TextView) convertView.findViewById(R.id.tv_app_package_name);
+                convertView.setTag(holder);
+            } else {
+                holder = (ViewHolder) convertView.getTag();
             }
-            ResolveInfo appInfo=listApp.get(position);
-            holder.tvAppName.setText(appInfo.activityInfo.packageName);
+            ResolveInfo appInfo = listApp.get(position);
+            holder.ivLogo.setImageDrawable(appInfo.loadIcon(pm));
+            holder.tvAppName.setText(appInfo.loadLabel(pm));
             holder.tvPackageName.setText(appInfo.activityInfo.packageName);
-            return null;
+            return convertView;
         }
     }
 
-    static class ViewHolder{
+    static class ViewHolder {
         ImageView ivLogo;
         TextView tvAppName;
         TextView tvPackageName;
